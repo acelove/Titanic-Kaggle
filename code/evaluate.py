@@ -10,11 +10,10 @@ def evaluate(data):
     data_8 = data[0:int(data.shape[0]*0.8)]
     data_2 = data[int(data.shape[0]*0.8):]
 
-    train_X, evaluate_X = get_feats(data_8,data_2)
-  
-
     train_y = data_8['Survived']
     evaluate_y = data_2['Survived']
+
+    train_X, evaluate_X = get_feats(data_8,data_2)
 
     classifier = RF_model()
     classifier.fit(train_X,train_y)

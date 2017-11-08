@@ -15,3 +15,7 @@ def get_dummies(train,test,prefix):
     d_train = dummies_data[0:train.shape[0]]
     d_test  = dummies_data[train.shape[0]:]
     return d_train, d_test
+
+def drop(data_list, feat_list):
+    for data in data_list:
+        data.drop(feat_list,axis=1,inplace=True)

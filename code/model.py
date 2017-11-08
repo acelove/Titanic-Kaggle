@@ -5,7 +5,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.ensemble import RandomForestClassifier
 import xgboost as xgb
 def RF_model():
-    return RandomForestClassifier(criterion='gini', 
+    return RandomForestClassifier(criterion='entropy', 
                              n_estimators=1200,
                              min_samples_split=16,
                              min_samples_leaf=1,
