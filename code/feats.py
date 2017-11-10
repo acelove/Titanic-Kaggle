@@ -19,9 +19,9 @@ def Name_Title_Code(x):
 
     if x=="Mr.":
         return 1
-    if x=="Mrs." or x=="Ms." or x=="Lady."  or x == 'Mlle.' or x =='Mme':
+    if x=="Mrs." or x=="Ms."   or x == 'Mlle.' or x =='Mme':
         return 2
-    if x=="Miss":
+    if x=="Miss." or x=="Lady.":
         return 3
     if x=="Rev.":
         return 4
@@ -45,13 +45,13 @@ def deal_Age(train, test):
     train['Age'] = train.groupby(['Name_Title','Pclass'])['Age'].transform(lambda x : x.fillna(x.mean()))
     test['Age'] = train.groupby(['Name_Title','Pclass'])['Age'].transform(lambda x : x.fillna(x.mean()))
     drop([train,test],['Name_Title'])
+    return train,test
   
 def deal_SibSp_and_Parch(train,test):
 
     for data in [train,test]:
-        data['Fam_Size'] = np.where((data['SibSp']+data['Parch']) == 0 , 'Solo',
-                            np.where((data['SibSp']+data['Parch']) <= 3,'Nuclear',
-                            'Big'))
+        data['Fam_Size'] = data['SibSp'] + data['Parch']
+        data['Fam_Size'] = data['Fam_Size'].apply(lambda x: 'Solo' if x==0 else ('Normal' if x<=3 else 'Big'))
 
     dummies_Fam_Size_train, dummies_Fam_Size_test = get_dummies(train['Fam_Size'],test['Fam_Size'],prefix='Fam_Size')
     train = pd.concat([train, dummies_Fam_Size_train],axis=1)
@@ -65,9 +65,7 @@ def deal_Ticket(train,test):
 
     for data in [train,test]:
         data['Ticket_Lett'] = data['Ticket'].apply(lambda x: str(str(x)[0]))
-        data['Ticket_Lett'] = np.where((data['Ticket_Lett']).isin(['1', '2', '3', 'S', 'P', 'C', 'A']), data['Ticket_Lett'],
-                                    np.where((data['Ticket_Lett']).isin(['W', '4', '7', '6', 'L', '5', '8']),
-                                            'Low_ticket', 'Other_ticket'))
+        data['Ticket_Lett'] = data['Ticket_Lett'].apply(lambda x : x if x in ['1', '2', '3', 'S', 'P', 'C', 'A'] else ('Low_ticket' if x in ['W', '4', '7', '6', 'L', '5', '8'] else 'Other_ticket'))
         data['Ticket_Len'] = data['Ticket'].apply(lambda x: len(x))
 
     dummies_Ticket_Lett_train, dummies_Ticket_Lett_test = get_dummies(train['Ticket_Lett'],test['Ticket_Lett'],prefix='Ticket_Lett')
@@ -132,7 +130,7 @@ def get_feats(train,test):
     train, test = deal_Name(train, test)
 
     #age feature
-    deal_Age(train, test)
+    train,test = deal_Age(train, test)
 
     #Family feature
     train, test = deal_SibSp_and_Parch(train, test)
@@ -151,5 +149,6 @@ def get_feats(train,test):
     train, test = deal_Pclass(train, test)
 
     test.loc[(test.Fare.isnull()),'Fare'] = test['Fare'].mean()
+
 
     return train.values,test.values
