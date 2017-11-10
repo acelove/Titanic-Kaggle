@@ -11,6 +11,7 @@ if __name__ == "__main__":
     train_y = data_train['Survived']
     ID = data_test['PassengerId'].values
     train_X ,test_X = get_feats(data_train,data_test)
+    print train_X
 
     #data_test = pd.read_csv('../input/test.csv')
     #test_X= get_feats(data_test)

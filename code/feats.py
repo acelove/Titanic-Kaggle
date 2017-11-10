@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 from utils import *
+import sklearn.preprocessing as preprocessing
 
 def deal_Sex(train,test):
 
@@ -44,6 +45,7 @@ def deal_Age(train, test):
 
     train['Age'] = train.groupby(['Name_Title','Pclass'])['Age'].transform(lambda x : x.fillna(x.mean()))
     test['Age'] = train.groupby(['Name_Title','Pclass'])['Age'].transform(lambda x : x.fillna(x.mean()))
+
     drop([train,test],['Name_Title'])
     return train,test
   
@@ -51,7 +53,7 @@ def deal_SibSp_and_Parch(train,test):
 
     for data in [train,test]:
         data['Fam_Size'] = data['SibSp'] + data['Parch']
-        data['Fam_Size'] = data['Fam_Size'].apply(lambda x: 'Solo' if x==0 else ('Normal' if x<=3 else 'Big'))
+        data['Fam_Size'] = data['Fam_Size'].apply(lambda x: 'Solo' if x==0 else ('Normal' if x<=3 else ('Middle' if x<7 else 'Big')))
 
     dummies_Fam_Size_train, dummies_Fam_Size_test = get_dummies(train['Fam_Size'],test['Fam_Size'],prefix='Fam_Size')
     train = pd.concat([train, dummies_Fam_Size_train],axis=1)
@@ -95,9 +97,6 @@ def deal_Cabin(train, test):
     return train, test
 
 def deal_Embarked(train,test):
-
-    for data in [train,test]:
-        data['Embarked'] = data['Embarked'].fillna('S')
     
     dummies_Embarked_train, dummies_Embarked_test = get_dummies(train['Embarked'],test['Embarked'],prefix='Embarked')
     train = pd.concat([train, dummies_Embarked_train],axis=1)
@@ -151,4 +150,4 @@ def get_feats(train,test):
     test.loc[(test.Fare.isnull()),'Fare'] = test['Fare'].mean()
 
 
-    return train.values,test.values
+    return train,test
